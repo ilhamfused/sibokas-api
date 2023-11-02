@@ -33,7 +33,8 @@ class DatabaseSeeder extends Seeder
             SemesterSeeder::class,
             ClassroomSeeder::class,
             ClassroomScheduleSeeder::class,
-            StudentSeeder::class
+            StudentSeeder::class,
+            ClassroomReportSeeder::class
         ]);
     }
 }

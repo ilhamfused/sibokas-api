@@ -34,22 +34,6 @@ class ClassroomScheduleSeeder extends Seeder
             [
                 "day_of_week" => 1,
                 "start_time" => "07:00:00",
-                "end_time" => "11:30:00",
-                'semester_id' => 1,
-                'classroom_id' => 1,
-                'admin_id' => 1
-            ],
-            [
-                "day_of_week" => 1,
-                "start_time" => "12:00:00",
-                "end_time" => "14:00:00",
-                'semester_id' => 1,
-                'classroom_id' => 1,
-                'admin_id' => 1
-            ],
-            [
-                "day_of_week" => 1,
-                "start_time" => "07:00:00",
                 "end_time" => "08:30:00",
                 'semester_id' => 1,
                 'classroom_id' => 2,
@@ -58,7 +42,7 @@ class ClassroomScheduleSeeder extends Seeder
             [
                 "day_of_week" => 1,
                 "start_time" => "08:30:00",
-                "end_time" => "15:30:00",
+                "end_time" => "11:30:00",
                 'semester_id' => 1,
                 'classroom_id' => 2,
                 'admin_id' => 1
