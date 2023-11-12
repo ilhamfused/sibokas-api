@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\ClassroomReport;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Classroom extends Model
 {
@@ -12,4 +16,23 @@ class Classroom extends Model
     protected $guarded = [
         'id'
     ];
+    public function student(): BelongsToMany
+    {
+        return $this->belongsToMany(Student::class);
+    }
+
+    public function classroomReport(): HasMany
+    {
+        return $this->hasMany(ClassroomReport::class);
+    }
+
+    public function building(): BelongsTo
+    {
+        return $this->belongsTo(Building::class);
+    }
+
+    public function picRoom(): BelongsTo
+    {
+        return $this->belongsTo(PicRoom::class);
+    }
 }

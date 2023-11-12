@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Semester extends Model
 {
@@ -12,4 +13,9 @@ class Semester extends Model
     protected $guarded = [
         'id'
     ];
+
+    public function classroomSechedule(): HasMany
+    {
+        return $this->hasMany(ClassroomSchedule::class);
+    }
 }

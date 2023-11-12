@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use App\Models\Classroom;
+use App\Models\ClassroomReport;
+use App\Models\BookingClassroom;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Student extends Model
 {
@@ -38,4 +43,14 @@ class Student extends Model
     // protected $casts = [
     //     'password' => 'hashed',
     // ];
+
+    public function classroom(): BelongsToMany
+    {
+        return $this->belongsToMany(Classroom::class);
+    }
+
+    public function classroomReport(): HasMany
+    {
+        return $this->hasMany(ClassroomReport::class);
+    }
 }
