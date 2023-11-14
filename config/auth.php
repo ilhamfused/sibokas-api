@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Admin;
+use App\Models\Student;
+
 return [
 
     /*
@@ -40,6 +43,14 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'admins' => [
+            'driver' => 'sanctum',
+            'provider' => 'admins',
+        ],
+        'students' => [
+            'driver' => 'sanctum',
+            'provider' => 'students',
+        ],
     ],
 
     /*
@@ -64,6 +75,15 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => Admin::class,
+        ],
+        'students' => [
+            'driver' => 'eloquent',
+            'model' => Student::class,
+        ],
+
 
         // 'users' => [
         //     'driver' => 'database',
