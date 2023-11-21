@@ -25,7 +25,12 @@ class AuthenticationController extends Controller
             ]);
         }
 
-        return $admin->createToken('admin login')->plainTextToken;
+        $token =  $admin->createToken('admin login', ['role:admin'])->plainTextToken;
+
+        return response()->json([
+            'type' => 'Bearer',
+            'token' => $token,
+        ]);
     }
 
     public function logoutAdmin(Request $request)
@@ -49,7 +54,12 @@ class AuthenticationController extends Controller
             ]);
         }
 
-        return $student->createToken('student login')->plainTextToken;
+        $token =  $student->createToken('student login', ['role:student'])->plainTextToken;
+
+        return response()->json([
+            'type' => 'Bearer',
+            'token' => $token,
+        ]);
     }
 
     public function logoutStudent(Request $request)

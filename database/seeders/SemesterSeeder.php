@@ -15,6 +15,16 @@ class SemesterSeeder extends Seeder
     {
         $semester = [
             [
+                "name" => "2022/2023 Gasal",
+                "start_date" => '2022-09-05 00:00:00',
+                "end_date" => '2022-12-24 00:00:00',
+            ],
+            [
+                "name" => "2022/2023 Genap",
+                "start_date" => '2023-02-06 00:00:00',
+                "end_date" => '2023-07-08 00:00:00',
+            ],
+            [
                 "name" => "2023/2024 Gasal",
                 "start_date" => '2023-09-04 00:00:00',
                 "end_date" => '2023-12-22 00:00:00',
