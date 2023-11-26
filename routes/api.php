@@ -43,10 +43,13 @@ Route::middleware(['auth:sanctum', 'type.admin'])->group(function () {
     Route::get('/classrooms/{id}', [ClassroomController::class, 'show']);
     Route::put('/classrooms/{id}', [ClassroomController::class, 'update']);
     Route::delete('/classrooms/{id}', [ClassroomController::class, 'destroy']);
+    Route::post('/logout/admin', [AuthenticationController::class, 'logoutAdmin']);
+});
+
+Route::middleware(['auth:sanctum', 'type.student'])->group(function () {
+    Route::post('/logout/student', [AuthenticationController::class, 'logoutStudent']);
 });
 
 
 Route::post('/login/admin', [AuthenticationController::class, 'loginAdmin']);
-Route::post('/logout/admin', [AuthenticationController::class, 'logoutAdmin'])->middleware(['auth:sanctum']);
 Route::post('/login/student', [AuthenticationController::class, 'loginStudent']);
-Route::post('/logout/student', [AuthenticationController::class, 'logoutStudent'])->middleware(['auth:sanctum']);
