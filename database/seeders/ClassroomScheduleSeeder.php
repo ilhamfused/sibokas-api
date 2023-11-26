@@ -252,7 +252,7 @@ class ClassroomScheduleSeeder extends Seeder
                 'end_time' => $vendor['end_time'],
                 'semester_id' => $vendor['semester_id'],
                 'classroom_id' => $vendor['classroom_id'],
-                'admin_id' => $vendor['admin_id'],
+                // 'admin_id' => $vendor['admin_id'],
             ]);
         }
     }

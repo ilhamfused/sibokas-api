@@ -6,7 +6,9 @@ use App\Http\Controllers\CobaController;
 use App\Http\Controllers\PicRoomController;
 use App\Http\Controllers\BuildingController;
 use App\Http\Controllers\SemesterController;
+use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\ClassroomScheduleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,14 +26,23 @@ use App\Http\Controllers\AuthenticationController;
 // });
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/buildings', [BuildingController::class, 'index']);
-    Route::get('/buildings/classrooms/{id}', [BuildingController::class, 'showBuildingWithClassrooms']);
+    Route::get('/building-with-classrooms/{id}', [BuildingController::class, 'showBuildingWithClassrooms']);
+    Route::get('/classrooms', [ClassroomController::class, 'index']);
+    Route::get('/classroom-with-details/{id}', [ClassroomController::class, 'showClassroomWithDetails']);
 });
 
 Route::middleware(['auth:sanctum', 'type.admin'])->group(function () {
     Route::apiResource('/pic-rooms', PicRoomController::class);
     Route::apiResource('/semesters', SemesterController::class);
-    Route::get('/buildings/{id}', [BuildingController::class, 'show']);
+    Route::apiResource('/classroom-schedules', ClassroomScheduleController::class);
     Route::post('/buildings', [BuildingController::class, 'store']);
+    Route::get('/buildings/{id}', [BuildingController::class, 'show']);
+    Route::put('/buildings/{id}', [BuildingController::class, 'update']);
+    Route::delete('/buildings/{id}', [BuildingController::class, 'destroy']);
+    Route::post('/classrooms', [ClassroomController::class, 'store']);
+    Route::get('/classrooms/{id}', [ClassroomController::class, 'show']);
+    Route::put('/classrooms/{id}', [ClassroomController::class, 'update']);
+    Route::delete('/classrooms/{id}', [ClassroomController::class, 'destroy']);
 });
 
 

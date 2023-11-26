@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Semester;
 use Illuminate\Http\Request;
-use App\Http\Resources\SemesterResource;
+use App\Models\ClassroomSchedule;
+use App\Http\Resources\PicRoomResource;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\ClassroomScheduleResource;
 
-class SemesterController extends Controller
+class ClassroomScheduleController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,10 +16,10 @@ class SemesterController extends Controller
     public function index()
     {
         try {
-            $semesters = Semester::all();
+            $classroom_schedule = ClassroomSchedule::all();
             return response()->json([
                 'status' => 200,
-                'data' => SemesterResource::collection($semesters)
+                'data' => ClassroomScheduleResource::collection($classroom_schedule->loadMissing(['semester:id,name', 'classroom:id,name']))
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -34,9 +35,11 @@ class SemesterController extends Controller
     public function store(Request $request)
     {
         $validate = Validator::make($request->all(), [
-            "name" => "required|string|max:255",
-            "start_date" => "required|date",
-            "end_date" => "required|date",
+            "day_of_week" => "required|integer|between:1,5",
+            "start_time" => "required|date_format:H:i:s",
+            "end_time" => "required|date_format:H:i:s",
+            "semester_id" => "required|integer|exists:semesters,id",
+            "classroom_id" => "required|integer|exists:classrooms,id",
         ]);
         if ($validate->fails()) {
             return response()->json([
@@ -46,11 +49,12 @@ class SemesterController extends Controller
         } else {
             $data = $validate->validated();
             try {
-                $semester = Semester::create($data);
+                $classroom_schedule = ClassroomSchedule::create($data);
+                // dd('test');
                 return response()->json([
                     'status' => 200,
                     'message' => 'Data Added Successfully',
-                    'data' => new SemesterResource($semester)
+                    'data' => new ClassroomScheduleResource($classroom_schedule)
                 ]);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -67,10 +71,10 @@ class SemesterController extends Controller
     public function show(string $id)
     {
         try {
-            $semester = Semester::findOrFail($id);
+            $classroom_schedule = ClassroomSchedule::findOrFail($id);
             return response()->json([
                 'status' => 200,
-                'data' => new SemesterResource($semester)
+                'data' => new ClassroomScheduleResource($classroom_schedule->loadMissing(['semester:id,name', 'classroom:id,name']))
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -86,9 +90,11 @@ class SemesterController extends Controller
     public function update(Request $request, string $id)
     {
         $validate = Validator::make($request->all(), [
-            "name" => "required|string|max:255",
-            "start_date" => "required|date",
-            "end_date" => "required|date",
+            "day_of_week" => "required|integer|between:1,5",
+            "start_time" => "required|date_format:H:i:s",
+            "end_time" => "required|date_format:H:i:s",
+            "semester_id" => "required|integer|exists:semesters,id",
+            "classroom_id" => "required|integer|exists:classrooms,id",
         ]);
         if ($validate->fails()) {
             return response()->json([
@@ -98,12 +104,13 @@ class SemesterController extends Controller
         } else {
             $data = $validate->validated();
             try {
-                $semester = Semester::findOrFail($id);
-                $semester->update($data);
+                $classroom_schedule = ClassroomSchedule::findOrFail($id);
+                $classroom_schedule->update($data);
+                // dd('test');
                 return response()->json([
                     'status' => 200,
                     'message' => 'Data Updated Successfully',
-                    'data' => new SemesterResource($semester)
+                    'data' => new ClassroomScheduleResource($classroom_schedule)
                 ]);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -120,12 +127,12 @@ class SemesterController extends Controller
     public function destroy(string $id)
     {
         try {
-            $semester = Semester::findOrFail($id);
-            $semester->delete();
+            $classroom_schedule = ClassroomSchedule::findOrFail($id);
+            $classroom_schedule->delete();
             return response()->json([
                 'status' => 200,
                 'message' => 'Data Deleted Successfully',
-                'data' => new SemesterResource($semester)
+                'data' => new ClassroomScheduleResource($classroom_schedule)
             ]);
         } catch (\Throwable $th) {
             return response()->json([

@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Building;
+use Log;
+use App\Models\Classroom;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Resources\BuildingResource;
+use App\Http\Resources\ClassroomResource;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Resources\BuildingDetailResource;
+use App\Http\Resources\ClassroomDetailResource;
 
-class BuildingController extends Controller
+class ClassroomController extends Controller
 {
     public function index()
     {
         try {
-            $buildings = Building::all();
+            $classrooms = Classroom::all();
             return response()->json([
                 'status' => 200,
-                'data' => BuildingResource::collection($buildings)
+                'data' => ClassroomResource::collection($classrooms->loadMissing(['picRoom:id,name', 'building:id,building_code,name']))
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -28,30 +29,18 @@ class BuildingController extends Controller
         }
     }
 
-    public function show($id)
-    {
-        try {
-            $building = Building::findOrFail($id);
-            return response()->json([
-                'status' => 200,
-                'data' => new BuildingResource($building)
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'Something wrong',
-            ], 500);
-        }
-    }
-
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
-        // return $request->file('photo');
+        // return $request;
         $validate = Validator::make($request->all(), [
-            // ['required', 'string', 'max:255', Rule::unique('buildings', 'building_code')->whereNull('deleted_at')]
-            "building_code" =>  "required|string|max:255|unique:buildings,building_code",
-            "name" => "required|string|max:255",
-            "photo" => "nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048"
+            "name" => "required|string|max:255|unique:classrooms,name",
+            "name_alias" => "nullable|string|max:255",
+            "photo" => "nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048",
+            "pic_room_id" => "required|integer|exists:pic_rooms,id",
+            "building_id" => "required|integer|exists:buildings,id",
         ]);
         if ($validate->fails()) {
             return response()->json([
@@ -61,15 +50,15 @@ class BuildingController extends Controller
         } else {
             $data = $validate->validated();
             try {
-                $uploadFolder = 'building-photo';
+                $uploadFolder = 'classroom-photo';
                 $photo = $request->file('photo');
                 $image_uploaded_path = $photo->store($uploadFolder, 'public');
                 $data['photo'] = Storage::disk('public')->url($image_uploaded_path);
-                $building = Building::create($data);
+                $classroom = classroom::create($data);
                 return response()->json([
                     'status' => 200,
                     'message' => 'Data Added Successfully',
-                    'data' => new BuildingResource($building)
+                    'data' => new classroomResource($classroom)
                 ]);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -80,13 +69,37 @@ class BuildingController extends Controller
         }
     }
 
-    public function update(Request $request, String $id)
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
     {
-        // return $request->all();
+        try {
+            $classroom = Classroom::with(['picRoom:id,name', 'building:id,building_code,name'])->findOrFail($id);
+            return response()->json([
+                'status' => 200,
+                'data' => new ClassroomResource($classroom)
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 500,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        // return $request;
         $validate = Validator::make($request->all(), [
-            "building_code" => "required|string|max:255|unique:buildings,building_code,$id",
-            "name" => "required|string|max:255",
-            "photo" => "nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048"
+            "name" => "required|string|max:255|unique:classrooms,name,$id",
+            "name_alias" => "nullable|string|max:255",
+            "photo" => "nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048",
+            "pic_room_id" => "required|integer|exists:pic_rooms,id",
+            "building_id" => "required|integer|exists:buildings,id",
         ]);
         if ($validate->fails()) {
             return response()->json([
@@ -96,19 +109,21 @@ class BuildingController extends Controller
         } else {
             $data = $validate->validated();
             try {
-                $building = Building::findOrFail($id);
-                // Update only if there is a change in the building_code or name
-                $building->update([
-                    'building_code' => $data['building_code'],
+                $classroom = classroom::findOrFail($id);
+                // Update only if there is a change in the column except photo
+                $classroom->update([
                     'name' => $data['name'],
+                    'name_alias' => $data['name_alias'],
+                    'pic_room_id' => $data['pic_room_id'],
+                    'building_id' => $data['building_id'],
                 ]);
                 // Update the photo if a new one is provided
                 if ($request->hasFile('photo')) {
-                    $uploadFolder = 'building-photo';
+                    $uploadFolder = 'classroom-photo';
                     // Delete the old photo if it exists
-                    if ($building->photo) {
-                        $photoPath = basename($building->photo);
-                        $storagePath = 'building-photo/' . $photoPath;
+                    if ($classroom->photo) {
+                        $photoPath = basename($classroom->photo);
+                        $storagePath = 'classroom-photo/' . $photoPath;
                         // Check if the file exists before attempting to delete
                         if (Storage::disk('public')->exists($storagePath)) {
                             // Delete the file from storage
@@ -119,12 +134,12 @@ class BuildingController extends Controller
                     }
                     $photo = $request->file('photo');
                     $image_uploaded_path = $photo->store($uploadFolder, 'public');
-                    $building->update(['photo' => Storage::disk('public')->url($image_uploaded_path)]);
+                    $classroom->update(['photo' => Storage::disk('public')->url($image_uploaded_path)]);
                 }
                 return response()->json([
                     'status' => 200,
                     'message' => 'Data Updated Successfully',
-                    'data' => new BuildingResource($building)
+                    'data' => new classroomResource($classroom)
                 ]);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -135,14 +150,17 @@ class BuildingController extends Controller
         }
     }
 
-    public function destroy(String $id)
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
     {
         try {
-            $building = Building::findOrFail($id);
+            $classroom = Classroom::findOrFail($id);
             // Delete the photo if it exists
-            if ($building->photo) {
-                $photoPath = basename($building->photo);
-                $storagePath = 'building-photo/' . $photoPath;
+            if ($classroom->photo) {
+                $photoPath = basename($classroom->photo);
+                $storagePath = 'classroom-photo/' . $photoPath;
                 // Check if the file exists before attempting to delete
                 if (Storage::disk('public')->exists($storagePath)) {
                     // Delete the file from storage
@@ -151,27 +169,27 @@ class BuildingController extends Controller
                     \Log::info('File does not exist: ' . $storagePath);
                 }
             }
-            $building->delete();
+            $classroom->delete();
             return response()->json([
                 'status' => 200,
                 'message' => 'Data Deleted Successfully',
-                'data' => new BuildingResource($building)
+                'data' => new ClassroomResource($classroom)
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
-                'message' => 'Something wrong',
+                'message' => $th->getMessage(),
             ], 500);
         }
     }
 
-    public function showBuildingWithClassrooms($id)
+    public function showClassroomWithDetails($id)
     {
         try {
-            $building = Building::with('classroom')->findOrFail($id);
+            $classroom = Classroom::with(['picRoom:id,name', 'building:id,building_code,name', 'classroomSchedule'])->findOrFail($id);
             return response()->json([
                 'status' => 200,
-                'data' => new BuildingDetailResource($building)
+                'data' => new ClassroomDetailResource($classroom)
             ]);
         } catch (\Throwable $th) {
             return response()->json([

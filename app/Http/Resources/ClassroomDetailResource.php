@@ -3,10 +3,9 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
-use App\Http\Resources\ClassroomResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class BuildingDetailResource extends JsonResource
+class ClassroomDetailResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,11 +16,13 @@ class BuildingDetailResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'building_code' => $this->building_code,
             'name' => $this->name,
+            'name_alias' => $this->name_alias,
             'photo' => $this->photo,
-            'classrooms' => ClassroomResource::collection($this->whenLoaded('classroom'))
-            // 'classrooms' => ClassroomResource::collection($this->whenLoaded('classroom')->loadMissing(['picRoom:id,name', 'building:id,building_code,name']))
+            'status' => $this->status,
+            'pic_room' => $this->whenLoaded('picRoom'),
+            'building' => $this->whenLoaded('building'),
+            'schedules' => ClassroomScheduleResource::collection($this->whenLoaded('classroomSchedule')),
         ];
     }
 }

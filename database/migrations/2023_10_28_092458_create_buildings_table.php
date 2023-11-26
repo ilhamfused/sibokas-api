@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('building_code')->unique()->nullable();
             $table->string('name');
+            $table->string('photo')->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

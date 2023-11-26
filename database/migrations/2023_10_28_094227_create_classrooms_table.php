@@ -15,13 +15,14 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->string('name_alias')->nullable();
+            $table->integer('status')->comment('1:Free, 2:In Use')->default(1);
+            $table->string('photo')->nullable();
             $table->unsignedBigInteger('pic_room_id');
             $table->unsignedBigInteger('building_id');
             $table->timestamps();
-            $table->softDeletes();
 
-            $table->foreign('pic_room_id')->references('id')->on('pic_rooms');
-            $table->foreign('building_id')->references('id')->on('buildings');
+            $table->foreign('pic_room_id')->references('id')->on('pic_rooms')->onDelete('cascade');
+            $table->foreign('building_id')->references('id')->on('buildings')->onDelete('cascade');
         });
     }
 

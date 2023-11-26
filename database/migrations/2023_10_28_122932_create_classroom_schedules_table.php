@@ -13,18 +13,16 @@ return new class extends Migration
     {
         Schema::create('classroom_schedules', function (Blueprint $table) {
             $table->id();
-            $table->integer('day_of_week')->comment('1:Senin, 2:Selasa, 3:Rabu, 4:Kamis, 5:Jum\'at, 6:Sabtu, 7:Minggu');
+            $table->integer('day_of_week')->comment('1:Senin, 2:Selasa, 3:Rabu, 4:Kamis, 5:Jum\'at');
             $table->time('start_time');
             $table->time('end_time');
             $table->unsignedBigInteger('semester_id');
             $table->unsignedBigInteger('classroom_id');
-            $table->unsignedBigInteger('admin_id');
             $table->timestamps();
-            $table->softDeletes();
 
-            $table->foreign('semester_id')->references('id')->on('semesters');
-            $table->foreign('classroom_id')->references('id')->on('classrooms');
-            $table->foreign('admin_id')->references('id')->on('admins');
+            $table->foreign('semester_id')->references('id')->on('semesters')->onDelete('cascade');
+            $table->foreign('classroom_id')->references('id')->on('classrooms')->onDelete('cascade');
+            // $table->foreign('admin_id')->references('id')->on('admins')->onDelete('cascade');
         });
     }
 

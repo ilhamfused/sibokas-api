@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\ClassroomReport;
+use App\Models\ClassroomSchedule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,6 +25,11 @@ class Classroom extends Model
     public function classroomReport(): HasMany
     {
         return $this->hasMany(ClassroomReport::class);
+    }
+
+    public function classroomSchedule(): HasMany
+    {
+        return $this->hasMany(ClassroomSchedule::class);
     }
 
     public function building(): BelongsTo
