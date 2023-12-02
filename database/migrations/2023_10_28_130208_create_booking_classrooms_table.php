@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('booking_classrooms', function (Blueprint $table) {
             $table->id();
             $table->time('time_in');
-            $table->time('time_out');
+            $table->time('time_out')->nullable();
             $table->integer('status')->comment('1:checked in, 2:checked out');
             $table->unsignedBigInteger('student_id');
             $table->unsignedBigInteger('classroom_id');

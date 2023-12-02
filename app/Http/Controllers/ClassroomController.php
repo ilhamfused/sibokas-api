@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Log;
+use Carbon\Carbon;
 use App\Models\Classroom;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,7 @@ class ClassroomController extends Controller
             return response()->json([
                 'status' => 200,
                 'data' => ClassroomResource::collection($classrooms->loadMissing(['picRoom:id,name', 'building:id,building_code,name']))
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -56,10 +57,10 @@ class ClassroomController extends Controller
                 $data['photo'] = Storage::disk('public')->url($image_uploaded_path);
                 $classroom = classroom::create($data);
                 return response()->json([
-                    'status' => 200,
+                    'status' => 201,
                     'message' => 'Data Added Successfully',
                     'data' => new classroomResource($classroom)
-                ]);
+                ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
                     'status' => 500,
@@ -79,7 +80,7 @@ class ClassroomController extends Controller
             return response()->json([
                 'status' => 200,
                 'data' => new ClassroomResource($classroom)
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -137,10 +138,10 @@ class ClassroomController extends Controller
                     $classroom->update(['photo' => Storage::disk('public')->url($image_uploaded_path)]);
                 }
                 return response()->json([
-                    'status' => 200,
+                    'status' => 201,
                     'message' => 'Data Updated Successfully',
                     'data' => new classroomResource($classroom)
-                ]);
+                ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
                     'status' => 500,
@@ -174,7 +175,7 @@ class ClassroomController extends Controller
                 'status' => 200,
                 'message' => 'Data Deleted Successfully',
                 'data' => new ClassroomResource($classroom)
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -186,11 +187,39 @@ class ClassroomController extends Controller
     public function showClassroomWithDetails($id)
     {
         try {
-            $classroom = Classroom::with(['picRoom:id,name', 'building:id,building_code,name', 'classroomSchedule'])->findOrFail($id);
+            // $classroom = Classroom::with(['picRoom:id,name', 'building:id,building_code,name', 'classroomSchedule'])->findOrFail($id);
+            $dayOfWeek = Carbon::now()->dayOfWeek;
+            $currentDate = Carbon::now()->toDateString();
+
+            $classroom = Classroom::with([
+                'picRoom:id,name',
+                'building:id,building_code,name',
+                'classroomSchedule' => function ($query) use ($currentDate, $dayOfWeek) {
+                    // $query->where(function ($subquery) use ($currentDate, $dayOfWeek) {
+                    //     $subquery->whereDate('start_time', '<=', $currentDate)
+                    //         ->whereDate('end_time', '>=', $currentDate)
+                    //         ->where('day_of_week', $dayOfWeek)
+                    //         ->orWhere(function ($subquery) use ($currentDate, $dayOfWeek) {
+                    //             $subquery->whereDate('start_time', '>=', $currentDate)
+                    //                 ->whereDate('end_time', '>=', $currentDate)
+                    //                 ->where('day_of_week', $dayOfWeek);
+                    //         });
+                    // })
+                    $query->where(function ($subquery) use ($dayOfWeek) {
+                        $subquery->where('day_of_week', $dayOfWeek);
+                    })
+                        ->whereHas('semester', function ($subquery) use ($currentDate) {
+                            $subquery->whereDate('start_date', '<=', $currentDate)
+                                ->whereDate('end_date', '>=', $currentDate);
+                        });
+                },
+            ])->findOrFail($id);
             return response()->json([
                 'status' => 200,
-                'data' => new ClassroomDetailResource($classroom)
-            ]);
+                'data' => new ClassroomDetailResource($classroom),
+                // 'dayOfWeek' => $dayOfWeek,
+                // 'currentDate' => $currentDate
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,

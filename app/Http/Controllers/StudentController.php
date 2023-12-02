@@ -30,12 +30,13 @@ class StudentController extends Controller
                     return response()->json([
                         'status' => 400,
                         'message' => "Old Password doesn't match"
-                    ]);
+                    ], 400);
                 }
                 $student->update([
                     'password' => Hash::make($data['new_password']),
                 ]);
                 return response()->json([
+                    'status' => 201,
                     'message' => 'Password Student Updated Successfully',
                     'data' => $student,
                 ], 201);

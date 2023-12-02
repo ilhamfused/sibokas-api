@@ -19,7 +19,7 @@ class PicRoomController extends Controller
             return response()->json([
                 'status' => 200,
                 'data' => PicRoomResource::collection($pic_rooms)
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -49,10 +49,10 @@ class PicRoomController extends Controller
                 ]);
                 // dd('test');
                 return response()->json([
-                    'status' => 200,
+                    'status' => 201,
                     'message' => 'Data Added Successfully',
                     'data' => new PicRoomResource($pic_room)
-                ]);
+                ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
                     'status' => 500,
@@ -72,7 +72,7 @@ class PicRoomController extends Controller
             return response()->json([
                 'status' => 200,
                 'data' => new PicRoomResource($pic_room)
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -100,10 +100,10 @@ class PicRoomController extends Controller
                 $pic_room = PicRoom::findOrFail($id);
                 $pic_room->update($data);
                 return response()->json([
-                    'status' => 200,
+                    'status' => 201,
                     'message' => 'Data Updated Successfully',
                     'data' => new PicRoomResource($pic_room)
-                ]);
+                ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
                     'status' => 500,
@@ -125,7 +125,7 @@ class PicRoomController extends Controller
                 'status' => 200,
                 'message' => 'Data Deleted Successfully',
                 'data' => new PicRoomResource($pic_room)
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,

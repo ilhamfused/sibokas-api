@@ -20,7 +20,7 @@ class AdminController extends Controller
             return response()->json([
                 'status' => 200,
                 'data' => AdminResource::collection($admin)
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -36,7 +36,7 @@ class AdminController extends Controller
             return response()->json([
                 'status' => 200,
                 'data' => StudentResource::collection($student)
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -124,7 +124,7 @@ class AdminController extends Controller
                     'name' => $admin->name,
                     'email' => $admin->email
                 ]
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -144,7 +144,7 @@ class AdminController extends Controller
                     'name' => $student->name,
                     'email' => $student->email
                 ]
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -182,6 +182,7 @@ class AdminController extends Controller
                     'password' => $password,
                 ]);
                 return response()->json([
+                    "status" => 201,
                     'message' => 'User Admin Updated Successfully',
                     'data' => $admin,
                 ], 201);
@@ -222,6 +223,7 @@ class AdminController extends Controller
                     'password' => $password,
                 ]);
                 return response()->json([
+                    "status" => 201,
                     'message' => 'User Student Updated Successfully',
                     'data' => $student,
                 ], 201);

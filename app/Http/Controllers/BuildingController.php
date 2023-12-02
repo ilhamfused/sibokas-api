@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Building;
+use App\Models\Semester;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
@@ -19,7 +21,7 @@ class BuildingController extends Controller
             return response()->json([
                 'status' => 200,
                 'data' => BuildingResource::collection($buildings)
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -35,7 +37,7 @@ class BuildingController extends Controller
             return response()->json([
                 'status' => 200,
                 'data' => new BuildingResource($building)
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -67,10 +69,10 @@ class BuildingController extends Controller
                 $data['photo'] = Storage::disk('public')->url($image_uploaded_path);
                 $building = Building::create($data);
                 return response()->json([
-                    'status' => 200,
+                    'status' => 201,
                     'message' => 'Data Added Successfully',
                     'data' => new BuildingResource($building)
-                ]);
+                ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
                     'status' => 500,
@@ -122,10 +124,10 @@ class BuildingController extends Controller
                     $building->update(['photo' => Storage::disk('public')->url($image_uploaded_path)]);
                 }
                 return response()->json([
-                    'status' => 200,
+                    'status' => 201,
                     'message' => 'Data Updated Successfully',
                     'data' => new BuildingResource($building)
-                ]);
+                ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
                     'status' => 500,
@@ -153,10 +155,10 @@ class BuildingController extends Controller
             }
             $building->delete();
             return response()->json([
-                'status' => 200,
+                'status' => 201,
                 'message' => 'Data Deleted Successfully',
                 'data' => new BuildingResource($building)
-            ]);
+            ], 201);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -168,11 +170,26 @@ class BuildingController extends Controller
     public function showBuildingWithClassrooms($id)
     {
         try {
+            // Langkah 1: Mengecek semester terakhir yang masih berjalan
+            $latestSemester = Semester::latest('end_date')->first();
+            if (!$latestSemester || $latestSemester->end_date < Carbon::now()->toDateString()) {
+                // Jika tidak ada semester terakhir atau semester terakhir sudah berakhir
+                return response()->json(['status' => 'error', 'message' => 'Tidak ada semester yang berjalan saat ini.']);
+            }
+            // Langkah 2: Mengecek apakah hari ini adalah hari Senin - Jumat
+            $currentDayOfWeek = Carbon::now()->dayOfWeek;
+            if ($currentDayOfWeek < 1 || $currentDayOfWeek > 5) {
+                // Jika hari ini bukan hari Senin - Jumat
+                return response()->json(['status' => 'error', 'message' => 'Hari ini bukan hari Senin - Jumat.']);
+            }
+            // Langkah 3: Jika lolos kedua pengecekan di atas, maka eksekusi query untuk memuat Classroom
             $building = Building::with('classroom')->findOrFail($id);
             return response()->json([
                 'status' => 200,
-                'data' => new BuildingDetailResource($building)
-            ]);
+                'data' => new BuildingDetailResource($building),
+                // 'latestSemester' => $latestSemester,
+                // 'currentDayOfWeek' => $currentDayOfWeek
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,

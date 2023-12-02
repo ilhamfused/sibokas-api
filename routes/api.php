@@ -9,8 +9,11 @@ use App\Http\Controllers\BuildingController;
 use App\Http\Controllers\SemesterController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ClassroomReportController;
 use App\Http\Controllers\ClassroomScheduleController;
 use App\Http\Controllers\StudentController;
+use App\Models\BookingClassroom;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +48,8 @@ Route::middleware(['auth:sanctum', 'type.admin'])->group(function () {
     Route::get('/classrooms/{id}', [ClassroomController::class, 'show']);
     Route::put('/classrooms/{id}', [ClassroomController::class, 'update']);
     Route::delete('/classrooms/{id}', [ClassroomController::class, 'destroy']);
+    Route::get('/bookings', [BookingController::class, 'getAllBooking']);
+    Route::get('/reports', [ClassroomReportController::class, 'getAllReport']);
     Route::get('/admins', [AdminController::class, 'showAllAdmin']);
     Route::get('/students', [AdminController::class, 'showAllStudent']);
     Route::post('/register-admin', [AdminController::class, 'registerAdmin']);
@@ -59,9 +64,14 @@ Route::middleware(['auth:sanctum', 'type.admin'])->group(function () {
 });
 
 Route::middleware(['auth:sanctum', 'type.student'])->group(function () {
-    Route::post('/logout/student', [AuthenticationController::class, 'logoutStudent']);
-    Route::put('/change-student-password/{id}', [StudentController::class, 'changePassword']);
+    Route::post('/check-in', [BookingController::class, 'checkIn']);
+    Route::put('/check-out/{bookingId}', [BookingController::class, 'checkOut']);
+    Route::get('/booking-history-student', [BookingController::class, 'bookingHistory']);
+    Route::post('/report', [ClassroomReportController::class, 'makeReport']);
+    Route::get('/report-history-student', [ClassroomReportController::class, 'reportHistory']);
     Route::get('/me', [StudentController::class, 'me']);
+    Route::put('/change-student-password/{id}', [StudentController::class, 'changePassword']);
+    Route::post('/logout/student', [AuthenticationController::class, 'logoutStudent']);
 });
 
 Route::post('/login/admin', [AuthenticationController::class, 'loginAdmin']);

@@ -19,7 +19,7 @@ class SemesterController extends Controller
             return response()->json([
                 'status' => 200,
                 'data' => SemesterResource::collection($semesters)
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -48,10 +48,10 @@ class SemesterController extends Controller
             try {
                 $semester = Semester::create($data);
                 return response()->json([
-                    'status' => 200,
+                    'status' => 201,
                     'message' => 'Data Added Successfully',
                     'data' => new SemesterResource($semester)
-                ]);
+                ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
                     'status' => 500,
@@ -71,7 +71,7 @@ class SemesterController extends Controller
             return response()->json([
                 'status' => 200,
                 'data' => new SemesterResource($semester)
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -101,10 +101,10 @@ class SemesterController extends Controller
                 $semester = Semester::findOrFail($id);
                 $semester->update($data);
                 return response()->json([
-                    'status' => 200,
+                    'status' => 201,
                     'message' => 'Data Updated Successfully',
                     'data' => new SemesterResource($semester)
-                ]);
+                ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
                     'status' => 500,
@@ -126,7 +126,7 @@ class SemesterController extends Controller
                 'status' => 200,
                 'message' => 'Data Deleted Successfully',
                 'data' => new SemesterResource($semester)
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,

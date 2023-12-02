@@ -20,7 +20,7 @@ class ClassroomScheduleController extends Controller
             return response()->json([
                 'status' => 200,
                 'data' => ClassroomScheduleResource::collection($classroom_schedule->loadMissing(['semester:id,name', 'classroom:id,name']))
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -52,10 +52,10 @@ class ClassroomScheduleController extends Controller
                 $classroom_schedule = ClassroomSchedule::create($data);
                 // dd('test');
                 return response()->json([
-                    'status' => 200,
+                    'status' => 201,
                     'message' => 'Data Added Successfully',
                     'data' => new ClassroomScheduleResource($classroom_schedule)
-                ]);
+                ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
                     'status' => 500,
@@ -75,7 +75,7 @@ class ClassroomScheduleController extends Controller
             return response()->json([
                 'status' => 200,
                 'data' => new ClassroomScheduleResource($classroom_schedule->loadMissing(['semester:id,name', 'classroom:id,name']))
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
@@ -108,10 +108,10 @@ class ClassroomScheduleController extends Controller
                 $classroom_schedule->update($data);
                 // dd('test');
                 return response()->json([
-                    'status' => 200,
+                    'status' => 201,
                     'message' => 'Data Updated Successfully',
                     'data' => new ClassroomScheduleResource($classroom_schedule)
-                ]);
+                ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
                     'status' => 500,
@@ -133,7 +133,7 @@ class ClassroomScheduleController extends Controller
                 'status' => 200,
                 'message' => 'Data Deleted Successfully',
                 'data' => new ClassroomScheduleResource($classroom_schedule)
-            ]);
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,
