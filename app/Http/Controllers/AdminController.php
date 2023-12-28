@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AdminResource;
+use App\Http\Resources\StudentResource;
 use App\Models\Admin;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Resources\AdminResource;
-use App\Http\Resources\StudentResource;
 use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
@@ -19,7 +19,7 @@ class AdminController extends Controller
             $admin = Admin::all();
             return response()->json([
                 'status' => 200,
-                'data' => AdminResource::collection($admin)
+                'data' => AdminResource::collection($admin),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -35,7 +35,7 @@ class AdminController extends Controller
             $student = Student::all();
             return response()->json([
                 'status' => 200,
-                'data' => StudentResource::collection($student)
+                'data' => StudentResource::collection($student),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -55,7 +55,7 @@ class AdminController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -89,7 +89,7 @@ class AdminController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -122,8 +122,8 @@ class AdminController extends Controller
                 'data' => [
                     'id' => $admin->id,
                     'name' => $admin->name,
-                    'email' => $admin->email
-                ]
+                    'email' => $admin->email,
+                ],
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -142,8 +142,8 @@ class AdminController extends Controller
                 'data' => [
                     'id' => $student->id,
                     'name' => $student->name,
-                    'email' => $student->email
-                ]
+                    'email' => $student->email,
+                ],
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -164,7 +164,7 @@ class AdminController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -205,7 +205,7 @@ class AdminController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -250,7 +250,7 @@ class AdminController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'Data Deleted Successfully',
-                'data' => $admin
+                'data' => $admin,
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -268,7 +268,7 @@ class AdminController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'Data Deleted Successfully',
-                'data' => $student
+                'data' => $student,
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -276,5 +276,9 @@ class AdminController extends Controller
                 'message' => $th->getMessage(),
             ], 500);
         }
+    }
+    public function admin()
+    {
+        return view('admin');
     }
 }

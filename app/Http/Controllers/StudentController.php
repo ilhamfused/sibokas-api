@@ -20,7 +20,7 @@ class StudentController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -29,7 +29,7 @@ class StudentController extends Controller
                 if (!Hash::check($data['old_password'], auth()->user()->password)) {
                     return response()->json([
                         'status' => 400,
-                        'message' => "Old Password doesn't match"
+                        'message' => "Old Password doesn't match",
                     ], 400);
                 }
                 $student->update([
@@ -52,5 +52,10 @@ class StudentController extends Controller
     public function me()
     {
         return Auth::user();
+    }
+
+    public function students()
+    {
+        return view('students');
     }
 }

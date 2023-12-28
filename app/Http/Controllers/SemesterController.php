@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SemesterResource;
 use App\Models\Semester;
 use Illuminate\Http\Request;
-use App\Http\Resources\SemesterResource;
 use Illuminate\Support\Facades\Validator;
 
 class SemesterController extends Controller
@@ -18,7 +18,7 @@ class SemesterController extends Controller
             $semesters = Semester::all();
             return response()->json([
                 'status' => 200,
-                'data' => SemesterResource::collection($semesters)
+                'data' => SemesterResource::collection($semesters),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -41,7 +41,7 @@ class SemesterController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -50,7 +50,7 @@ class SemesterController extends Controller
                 return response()->json([
                     'status' => 201,
                     'message' => 'Data Added Successfully',
-                    'data' => new SemesterResource($semester)
+                    'data' => new SemesterResource($semester),
                 ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -70,7 +70,7 @@ class SemesterController extends Controller
             $semester = Semester::findOrFail($id);
             return response()->json([
                 'status' => 200,
-                'data' => new SemesterResource($semester)
+                'data' => new SemesterResource($semester),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -93,7 +93,7 @@ class SemesterController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -103,7 +103,7 @@ class SemesterController extends Controller
                 return response()->json([
                     'status' => 201,
                     'message' => 'Data Updated Successfully',
-                    'data' => new SemesterResource($semester)
+                    'data' => new SemesterResource($semester),
                 ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -125,7 +125,7 @@ class SemesterController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'Data Deleted Successfully',
-                'data' => new SemesterResource($semester)
+                'data' => new SemesterResource($semester),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -133,5 +133,9 @@ class SemesterController extends Controller
                 'message' => 'Something wrong',
             ], 500);
         }
+    }
+    public function semester()
+    {
+        return view('semester');
     }
 }
