@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Log;
-use Carbon\Carbon;
-use App\Models\Classroom;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use App\Http\Resources\ClassroomResource;
-use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\ClassroomDetailResource;
+use App\Http\Resources\ClassroomResource;
+use App\Models\Classroom;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class ClassroomController extends Controller
 {
@@ -20,7 +18,7 @@ class ClassroomController extends Controller
             $classrooms = Classroom::all();
             return response()->json([
                 'status' => 200,
-                'data' => ClassroomResource::collection($classrooms->loadMissing(['picRoom:id,name', 'building:id,building_code,name']))
+                'data' => ClassroomResource::collection($classrooms->loadMissing(['picRoom:id,name', 'building:id,building_code,name'])),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -46,7 +44,7 @@ class ClassroomController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -59,7 +57,7 @@ class ClassroomController extends Controller
                 return response()->json([
                     'status' => 201,
                     'message' => 'Data Added Successfully',
-                    'data' => new classroomResource($classroom)
+                    'data' => new classroomResource($classroom),
                 ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -79,7 +77,7 @@ class ClassroomController extends Controller
             $classroom = Classroom::with(['picRoom:id,name', 'building:id,building_code,name'])->findOrFail($id);
             return response()->json([
                 'status' => 200,
-                'data' => new ClassroomResource($classroom)
+                'data' => new ClassroomResource($classroom),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -105,7 +103,7 @@ class ClassroomController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -140,7 +138,7 @@ class ClassroomController extends Controller
                 return response()->json([
                     'status' => 201,
                     'message' => 'Data Updated Successfully',
-                    'data' => new classroomResource($classroom)
+                    'data' => new classroomResource($classroom),
                 ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -174,7 +172,7 @@ class ClassroomController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'Data Deleted Successfully',
-                'data' => new ClassroomResource($classroom)
+                'data' => new ClassroomResource($classroom),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -224,6 +222,19 @@ class ClassroomController extends Controller
             return response()->json([
                 'status' => 500,
                 'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function showClassroom()
+    {
+        try {
+            $classrooms = Classroom::simplePaginate(10);
+            return view('classroom', ['classrooms' => $classrooms]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something wrong',
             ], 500);
         }
     }

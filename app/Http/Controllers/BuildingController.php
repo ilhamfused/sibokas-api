@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
+use App\Http\Resources\BuildingDetailResource;
+use App\Http\Resources\BuildingResource;
 use App\Models\Building;
 use App\Models\Semester;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Resources\BuildingResource;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Resources\BuildingDetailResource;
 
 class BuildingController extends Controller
 {
@@ -20,7 +19,7 @@ class BuildingController extends Controller
             $buildings = Building::all();
             return response()->json([
                 'status' => 200,
-                'data' => BuildingResource::collection($buildings)
+                'data' => BuildingResource::collection($buildings),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -36,7 +35,7 @@ class BuildingController extends Controller
             $building = Building::findOrFail($id);
             return response()->json([
                 'status' => 200,
-                'data' => new BuildingResource($building)
+                'data' => new BuildingResource($building),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -51,14 +50,14 @@ class BuildingController extends Controller
         // return $request->file('photo');
         $validate = Validator::make($request->all(), [
             // ['required', 'string', 'max:255', Rule::unique('buildings', 'building_code')->whereNull('deleted_at')]
-            "building_code" =>  "required|string|max:255|unique:buildings,building_code",
+            "building_code" => "required|string|max:255|unique:buildings,building_code",
             "name" => "required|string|max:255",
-            "photo" => "nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048"
+            "photo" => "nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048",
         ]);
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -71,7 +70,7 @@ class BuildingController extends Controller
                 return response()->json([
                     'status' => 201,
                     'message' => 'Data Added Successfully',
-                    'data' => new BuildingResource($building)
+                    'data' => new BuildingResource($building),
                 ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -88,12 +87,12 @@ class BuildingController extends Controller
         $validate = Validator::make($request->all(), [
             "building_code" => "required|string|max:255|unique:buildings,building_code,$id",
             "name" => "required|string|max:255",
-            "photo" => "nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048"
+            "photo" => "nullable|image|mimes:jpg,png,jpeg,gif,svg|max:2048",
         ]);
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -126,7 +125,7 @@ class BuildingController extends Controller
                 return response()->json([
                     'status' => 201,
                     'message' => 'Data Updated Successfully',
-                    'data' => new BuildingResource($building)
+                    'data' => new BuildingResource($building),
                 ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -157,7 +156,7 @@ class BuildingController extends Controller
             return response()->json([
                 'status' => 201,
                 'message' => 'Data Deleted Successfully',
-                'data' => new BuildingResource($building)
+                'data' => new BuildingResource($building),
             ], 201);
         } catch (\Throwable $th) {
             return response()->json([
@@ -196,5 +195,80 @@ class BuildingController extends Controller
                 'message' => $th->getMessage(),
             ], 500);
         }
+    }
+    public function showBuilding()
+    {
+        try {
+            $buildings = Building::simplePaginate(10);
+            return view('building', ['buildings' => $buildings]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something wrong',
+            ], 500);
+        }
+    }
+
+    public function tambahBuilding(Request $request)
+    {
+        $request->validate([
+            'building_code' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:5000', // Sesuaikan aturan validasi sesuai kebutuhan
+        ]);
+
+        // Simpan data ke database
+        $buildings = new Building;
+        $buildings->building_code = $request->input('building_code');
+        $buildings->name = $request->input('name');
+
+        // Proses upload dan menyimpan foto jika ada
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('building_photos', 'public');
+            $buildings->photo = $photoPath;
+        }
+
+        $buildings->save();
+
+        // Redirect atau berikan respons sesuai kebutuhan
+        return redirect()->route('building')->with('success', 'Data berhasil ditambahkan!');
+    }
+
+    public function deleteBuilding($id)
+    {
+        $buildings = Building::findOrFail($id);
+        // Hapus file gambar dari storage
+        Storage::delete('public/' . $buildings->photo);
+
+        $buildings->delete();
+
+        return redirect()->route('building')->with('success', 'Data berhasil dihapus!');
+    }
+
+    public function editBuilding($id)
+    {
+        $buildings = Building::findOrFail($id);
+        return view('updateBuilding', compact('buildings'));
+    }
+    public function updateBuilding(Request $request, $id)
+    {
+        $request->validate([
+            'building_code' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:5000',
+            // Aturan validasi lainnya
+        ]);
+
+        $buildings = Building::findOrFail($id);
+        $buildings->building_code = $request->input('building_code');
+        $buildings->name = $request->input('name');
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('building_photos', 'public');
+            $buildings->photo = $photoPath;
+        }
+
+        $buildings->save();
+
+        return redirect()->route('building')->with('success', 'Data berhasil diperbarui!');
     }
 }
