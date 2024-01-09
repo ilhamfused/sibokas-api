@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Classroom;
-use Illuminate\Http\Request;
-use App\Models\ClassroomReport;
-use function PHPSTORM_META\map;
-use App\Models\BookingClassroom;
-use Illuminate\Support\Facades\Storage;
-
-use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\ClassroomReportResource;
+use App\Models\BookingClassroom;
+use App\Models\ClassroomReport;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class ClassroomReportController extends Controller
 {
@@ -26,7 +23,7 @@ class ClassroomReportController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -38,7 +35,7 @@ class ClassroomReportController extends Controller
             if (!$bookingClassroom) {
                 return response()->json([
                     "status" => 401,
-                    "message" => "You never use this classroom before"
+                    "message" => "You never use this classroom before",
                 ], 401);
             }
             try {
@@ -50,7 +47,7 @@ class ClassroomReportController extends Controller
                 return response()->json([
                     'status' => 201,
                     'message' => 'Data Added Successfully',
-                    'data' => new ClassroomReportResource($classroomReport)
+                    'data' => new ClassroomReportResource($classroomReport),
                 ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -84,8 +81,21 @@ class ClassroomReportController extends Controller
             $classroomReport = ClassroomReport::all();
             return response()->json([
                 'status' => 200,
-                'data' => ClassroomReportResource::collection($classroomReport->loadMissing(['classroom:id,name,name_alias']))
+                'data' => ClassroomReportResource::collection($classroomReport->loadMissing(['classroom:id,name,name_alias'])),
             ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something wrong',
+            ], 500);
+        }
+    }
+
+    public function showReport()
+    {
+        try {
+            $classroom_reports = ClassroomReport::simplePaginate(10);
+            return view('report', ['classroom_reports' => $classroom_reports]);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,

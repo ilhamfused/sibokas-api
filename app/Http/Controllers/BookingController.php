@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\BookingResource;
-use Throwable;
-use Carbon\Carbon;
-use App\Models\Classroom;
-use Illuminate\Http\Request;
 use App\Models\BookingClassroom;
+use App\Models\Classroom;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class BookingController extends Controller
@@ -16,7 +15,7 @@ class BookingController extends Controller
     {
         $student = auth()->user();
         // Cek apakah ada booking untuk classroom ini yang belum check-out
-        $uncheckoutBooking  = BookingClassroom::where([
+        $uncheckoutBooking = BookingClassroom::where([
             ['student_id', $student->id],
             ['status', 1], // status checked in
         ])->first();
@@ -27,12 +26,12 @@ class BookingController extends Controller
             ], 401);
         }
         $validate = Validator::make($request->all(), [
-            "classroom_id" => "required|integer|exists:classrooms,id"
+            "classroom_id" => "required|integer|exists:classrooms,id",
         ]);
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -50,15 +49,15 @@ class BookingController extends Controller
                     // "time_out" => null,
                     "status" => 1,
                     "student_id" => $student->id,
-                    "classroom_id" => $classroom->id
+                    "classroom_id" => $classroom->id,
                 ]);
                 $classroom->update([
-                    "status" => 2
+                    "status" => 2,
                 ]);
                 return response()->json([
                     "status" => 200,
                     "message" => "Successfully Check-in to classroom",
-                    "data" => $bookingClassroom
+                    "data" => $bookingClassroom,
                 ], 200);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -73,12 +72,12 @@ class BookingController extends Controller
     {
         $student = auth()->user();
         $validate = Validator::make($request->all(), [
-            "classroom_id" => "required|integer|exists:classrooms,id"
+            "classroom_id" => "required|integer|exists:classrooms,id",
         ]);
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -98,12 +97,12 @@ class BookingController extends Controller
                     "status" => 2,
                 ]);
                 $classroom->update([
-                    "status" => 1
+                    "status" => 1,
                 ]);
                 return response()->json([
                     "status" => 200,
                     "message" => "Successfully Check-out from classroom",
-                    "data" => $bookingClassroom
+                    "data" => $bookingClassroom,
                 ], 200);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -137,8 +136,21 @@ class BookingController extends Controller
             $bookingClassrooms = BookingClassroom::all();
             return response()->json([
                 'status' => 200,
-                'data' => BookingResource::collection($bookingClassrooms)
+                'data' => BookingResource::collection($bookingClassrooms),
             ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something wrong',
+            ], 500);
+        }
+    }
+
+    public function showBooking()
+    {
+        try {
+            $booking_classrooms = BookingClassroom::simplePaginate(10);
+            return view('booking', ['booking_classrooms' => $booking_classrooms]);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 500,

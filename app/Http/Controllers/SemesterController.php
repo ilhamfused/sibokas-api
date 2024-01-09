@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SemesterResource;
 use App\Models\Semester;
 use Illuminate\Http\Request;
-use App\Http\Resources\SemesterResource;
 use Illuminate\Support\Facades\Validator;
 
 class SemesterController extends Controller
@@ -18,7 +18,7 @@ class SemesterController extends Controller
             $semesters = Semester::all();
             return response()->json([
                 'status' => 200,
-                'data' => SemesterResource::collection($semesters)
+                'data' => SemesterResource::collection($semesters),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -41,7 +41,7 @@ class SemesterController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -50,7 +50,7 @@ class SemesterController extends Controller
                 return response()->json([
                     'status' => 201,
                     'message' => 'Data Added Successfully',
-                    'data' => new SemesterResource($semester)
+                    'data' => new SemesterResource($semester),
                 ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -70,7 +70,7 @@ class SemesterController extends Controller
             $semester = Semester::findOrFail($id);
             return response()->json([
                 'status' => 200,
-                'data' => new SemesterResource($semester)
+                'data' => new SemesterResource($semester),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -93,7 +93,7 @@ class SemesterController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -103,7 +103,7 @@ class SemesterController extends Controller
                 return response()->json([
                     'status' => 201,
                     'message' => 'Data Updated Successfully',
-                    'data' => new SemesterResource($semester)
+                    'data' => new SemesterResource($semester),
                 ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -125,7 +125,7 @@ class SemesterController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'Data Deleted Successfully',
-                'data' => new SemesterResource($semester)
+                'data' => new SemesterResource($semester),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -133,5 +133,69 @@ class SemesterController extends Controller
                 'message' => 'Something wrong',
             ], 500);
         }
+    }
+    public function showSemester()
+    {
+        try {
+            $semesters = Semester::simplePaginate(10);
+            return view('semester', ['semesters' => $semesters]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something wrong',
+            ], 500);
+        }
+    }
+
+    public function tambahSemester(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            // Sesuaikan aturan validasi sesuai kebutuhan
+        ]);
+
+        // Simpan data ke database
+        $semesters = new Semester;
+        $semesters->name = $request->input('name');
+        $semesters->start_date = $request->input('start_date');
+        $semesters->end_date = $request->input('end_date');
+        $semesters->save();
+
+        // Redirect atau berikan respons sesuai kebutuhan
+        return redirect()->route('semester')->with('success', 'Data berhasil ditambahkan!');
+    }
+
+    public function deleteSemester($id)
+    {
+        $semesters = Semester::findOrFail($id);
+        $semesters->delete();
+
+        return redirect()->route('semester')->with('success', 'Data berhasil dihapus!');
+    }
+
+    public function editSemester($id)
+    {
+        $semesters = Semester::findOrFail($id);
+        return view('updateSemester', compact('semesters'));
+    }
+    public function updateSemester(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            // Aturan validasi lainnya
+        ]);
+
+        $semesters = Semester::findOrFail($id);
+        $semesters->name = $request->input('name');
+        $semesters->start_date = $request->input('start_date');
+        $semesters->end_date = $request->input('end_date');
+
+        $semesters->save();
+
+        return redirect()->route('semester')->with('success', 'Data berhasil diperbarui!');
     }
 }

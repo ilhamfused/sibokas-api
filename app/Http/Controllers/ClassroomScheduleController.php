@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\ClassroomSchedule;
-use App\Http\Resources\PicRoomResource;
-use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\ClassroomScheduleResource;
+use App\Models\ClassroomSchedule;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ClassroomScheduleController extends Controller
 {
@@ -19,7 +18,7 @@ class ClassroomScheduleController extends Controller
             $classroom_schedule = ClassroomSchedule::all();
             return response()->json([
                 'status' => 200,
-                'data' => ClassroomScheduleResource::collection($classroom_schedule->loadMissing(['semester:id,name', 'classroom:id,name']))
+                'data' => ClassroomScheduleResource::collection($classroom_schedule->loadMissing(['semester:id,name', 'classroom:id,name'])),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -44,7 +43,7 @@ class ClassroomScheduleController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -54,7 +53,7 @@ class ClassroomScheduleController extends Controller
                 return response()->json([
                     'status' => 201,
                     'message' => 'Data Added Successfully',
-                    'data' => new ClassroomScheduleResource($classroom_schedule)
+                    'data' => new ClassroomScheduleResource($classroom_schedule),
                 ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -74,7 +73,7 @@ class ClassroomScheduleController extends Controller
             $classroom_schedule = ClassroomSchedule::findOrFail($id);
             return response()->json([
                 'status' => 200,
-                'data' => new ClassroomScheduleResource($classroom_schedule->loadMissing(['semester:id,name', 'classroom:id,name']))
+                'data' => new ClassroomScheduleResource($classroom_schedule->loadMissing(['semester:id,name', 'classroom:id,name'])),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -99,7 +98,7 @@ class ClassroomScheduleController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'status' => 400,
-                'message' => $validate->errors()
+                'message' => $validate->errors(),
             ], 400);
         } else {
             $data = $validate->validated();
@@ -110,7 +109,7 @@ class ClassroomScheduleController extends Controller
                 return response()->json([
                     'status' => 201,
                     'message' => 'Data Updated Successfully',
-                    'data' => new ClassroomScheduleResource($classroom_schedule)
+                    'data' => new ClassroomScheduleResource($classroom_schedule),
                 ], 201);
             } catch (\Throwable $th) {
                 return response()->json([
@@ -132,7 +131,7 @@ class ClassroomScheduleController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'Data Deleted Successfully',
-                'data' => new ClassroomScheduleResource($classroom_schedule)
+                'data' => new ClassroomScheduleResource($classroom_schedule),
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -141,4 +140,18 @@ class ClassroomScheduleController extends Controller
             ], 500);
         }
     }
+
+    public function showSchedule()
+    {
+        try {
+            $classroom_schedules = ClassroomSchedule::simplePaginate(10);
+            return view('schedule', ['classroom_schedules' => $classroom_schedules]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something wrong',
+            ], 500);
+        }
+    }
+
 }
