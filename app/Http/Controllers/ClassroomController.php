@@ -67,6 +67,79 @@ class ClassroomController extends Controller
             }
         }
     }
+            
+    public function tambahClassroom(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'name_alias' => 'required|string|max:255',
+            'status' => 'required|string|max:255',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:5000', // Sesuaikan aturan validasi sesuai kebutuhan
+            'pic_room_id' => 'required|string|max:255',
+            'building_id' => 'required|string|max:255',
+            // Sesuaikan aturan validasi sesuai kebutuhan
+        ]);
+
+        // Simpan data ke database
+        $classroom = new Classroom;
+        $classroom->name = $request->input('name');
+        $classroom->name_alias = $request->input('name_alias');
+        $classroom->status = $request->input('status');
+            // Proses upload dan menyimpan foto jika ada
+            if ($request->hasFile('photo')) {
+                $photoPath = $request->file('photo')->store('classroom_photos', 'public');
+                $classroom->photo = $photoPath;
+        $classroom->pic_room_id = $request->input('pic_room_id');
+        $classroom->pic_room_id = $request->input('building_id');
+        $classroom->save();
+
+        // Redirect atau berikan respons sesuai kebutuhan
+        return redirect()->route('classroom')->with('success', 'Data berhasil ditambahkan!');
+        }
+    }
+    
+    public function deleteClassroom($id)
+    {
+        $classroom = Classroom::findOrFail($id);
+        $classroom->delete();
+
+        return redirect()->route('classroom')->with('success', 'Data berhasil dihapus!');
+    }
+    public function editClassroom($id)
+    {
+        $student = Classroom::findOrFail($id);
+        return view('updateClassroom', compact('classroom'));
+    }
+    public function updateClassroom(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'name_alias' => 'required|string|max:255',
+            'status' => 'required|string|max:255',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:5000', // Sesuaikan aturan validasi sesuai kebutuhan
+            'pic_room_id' => 'required|string|max:255',
+            'building_id' => 'required|string|max:255',
+            // Sesuaikan aturan validasi sesuai kebutuhan
+        ]);
+
+        // Simpan data ke database
+        $classroom = new Classroom;
+        $classroom->name = $request->input('name');
+        $classroom->name_alias = $request->input('name_alias');
+        $classroom->status = $request->input('status');
+            // Proses upload dan menyimpan foto jika ada
+            if ($request->hasFile('photo')) {
+                $photoPath = $request->file('photo')->store('classroom_photos', 'public');
+                $classroom->photo = $photoPath;
+        $classroom->pic_room_id = $request->input('pic_room_id');
+        $classroom->pic_room_id = $request->input('building_id');
+        $classroom->save();
+
+        // Redirect atau berikan respons sesuai kebutuhan
+        return redirect()->route('classroom')->with('success', 'Data berhasil ditambahkan!');
+        }
+    }
+    
 
     /**
      * Display the specified resource.
@@ -86,7 +159,6 @@ class ClassroomController extends Controller
             ], 500);
         }
     }
-
     /**
      * Update the specified resource in storage.
      */

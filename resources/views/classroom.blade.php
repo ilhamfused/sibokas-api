@@ -17,7 +17,9 @@
                   <div class="col-sm-11">
                     <h1 class="m-0">Data Classroom</h1>
                   </div>
+                    <a href="{{ route('tambahClassroom') }}">
                     <button class="btn btn-primary ml-auto">Tambah</button>
+                  </a>
                 </div>
 
               </div>

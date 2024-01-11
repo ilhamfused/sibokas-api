@@ -74,4 +74,13 @@ Route::delete('/deletepicroom/{id}', [App\Http\Controllers\PicRoomController::cl
 Route::get('/picrooms/{id}/edit', [App\Http\Controllers\PicRoomController::class, 'editPicroom'])->name('picroom.edit');
 Route::put('/picrooms/{id}', [App\Http\Controllers\PicRoomController::class, 'updatePicroom'])->name('picroom.update');
 
+Route::get('/tambah-classroom', function () {
+    return view('tambahClassroom');
+})->name('tambahClassroom');
+
+Route::post('/tambahclasroom', [App\Http\Controllers\ClassroomController::class, 'tambahClassroom'])->name('tambahclassroom');
+Route::delete('/deleteclassroom/{id}', [App\Http\Controllers\ClassroomController::class, 'deleteClassroom'])->name('deleteclassroom');
+Route::get('/classroom/{id}/edit', [App\Http\Controllers\ClassroomController::class, 'editClassroom'])->name('classroom.edit');
+Route::put('/classroom/{id}', [App\Http\Controllers\ClassroomController::class, 'updateClassroom'])->name('classroom.update');
+
 Auth::routes();
